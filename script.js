@@ -67,109 +67,109 @@ let score = 0;
 let answersDisabled = false;
 
 totalQuestionsSpan.textContent = quizQuestions.length;
-maxScoreSpan.textContent = quizQuestions.length
+maxScoreSpan.textContent = quizQuestions.length;
 
 startButton.addEventListener("click", startQuiz);
 restartButton.addEventListener("click", restartQuiz);
 
 function startQuiz() {
+  
+  scoreSpan.textContent = 0;
 
-    currentQuestionIndex = 0;
-    scoreSpan.textContent = 0
+  startScreen.classList.remove("active");
+  resultScreen.classList.remove("active");
+  quizScreen.classList.add("active");
 
-    startScreen.classList.remove("active");
-    resultScreen.classList.add("active");
-
-    showQuestion()
+  showQuestion();
 }
 
 function showQuestion() {
+  answersContainer.innerHTML = ""; // clear old answers
+  answersDisabled = false;
 
-    answersDisabled = false
+  const currentQuestion = quizQuestions[currentQuestionIndex];
 
-    const currentQuestion = quizQuestions[currentQuestionIndex]
+  currentQuestionSpan.textContent = currentQuestionIndex + 1;
 
-    currentQuestionSpan.textContent = currentQuestionIndex + 1
+  const progressPercent =
+    ((currentQuestionIndex + 1) / quizQuestions.length) * 100;
+  progressBar.style.width = progressPercent + "%";
 
-    const progressPercent = ((currentQuestionIndex + 1) / quizQuestions.length) * 100;
-    progressBar.style.width = progressPercent + "%"
- 
-    questionText.textContent = currentQuestion.question
+  questionText.textContent = currentQuestion.question;
 
+  // OPTIONAL: shuffle answers
+  const shuffledAnswers = [...currentQuestion.answers].sort(
+    () => Math.random() - 0.5
+  );
 
+  shuffledAnswers.forEach((answer) => {
+    const button = document.createElement("button");
+    button.textContent = answer.text;
+    button.classList.add("answer-btn");
 
-    currentQuestion.answers.forEach(answer => {
-        const button = document.createElement("button")
-        button.textContent = answer.text
-        button.classList.add("answer-btn")
+    button.dataset.correct = answer.correct;
+    button.addEventListener("click", selectAnswer);
 
-        button.dataset.correct = answer.correct
-
-        button.addEventListener("click", selectAnswer)
-
-        answersContainer.appendChild(button);
-    });
+    answersContainer.appendChild(button);
+  });
 }
 
 function selectAnswer(event) {
-    if(answersDisabled) return
+  if (answersDisabled) return;
 
-    answersDisabled = true
+  answersDisabled = true;
 
-    const selectedButton = event.target;
-    const isCorrect = selectedButton.dataset.correct == "true"
+  const selectedButton = event.target;
+  const isCorrect = selectedButton.dataset.correct === "true";
 
-    Array.from(answersContainer.children).forEach(button => {
-        if(button.dataset.correct =="true") {
-            button.classList.add("correct")
-        } else if (button === selectedButton) {
-            button.classList.add("incorrect")
-
-        }
-    });
-
-    if (isCorrect) {
-        score++;
-        scoreSpan.textContent = score
+  Array.from(answersContainer.children).forEach((button) => {
+    if (button.dataset.correct === "true") {
+      button.classList.add("correct");
+    } else if (button === selectedButton) {
+      button.classList.add("incorrect");
     }
+  });
 
-    setTimeout(() => {
+  if (isCorrect) {
+    score++;
+    scoreSpan.textContent = score;
+  }
+
+  setTimeout(() => {
     currentQuestionIndex++;
 
     if (currentQuestionIndex < quizQuestions.length) {
-        answersContainer.innerHTML = ""; // clear old answers
-        score = 0;
-        showQuestion();
+      showQuestion();
     } else {
-        showResults();
+      showResults();
     }
-}, 1000);
+  }, 1000);
 }
 
 function showResults() {
-    quizScreen.classList.remove("active");
-    resultScreen.classList.add("active");
+  quizScreen.classList.remove("active");
+  resultScreen.classList.add("active");
 
-    finalScoreSpan.textContent = score;
+  finalScoreSpan.textContent = score;
 
-    const percentage = (score/quizQuestions.length) * 100
+  const percentage = (score / quizQuestions.length) * 100;
 
-    if(percentage === 100) {
-        resultMessage.textContent = "Perfect! your smart or sumtin";
-    } else if(percentage >= 80) {
-        resultMessage.textContent = "pretty good";
-    } else if(percentage >= 60) {
-        resultMessage.textContent = "barely pass";
-    } else if(percentage >= 40) {
-        resultMessage.textContent = "try harder";
-    } else if(percentage >= 20) {
-        resultMessage.textContent = "shite";
-    } else {
-    resultMessage.textContent = "💀 you guessed randomly huh";
+  if (percentage === 100) {
+    resultMessage.textContent = "Perfect! you're actually cracked";
+  } else if (percentage >= 80) {
+    resultMessage.textContent = "Pretty good";
+  } else if (percentage >= 60) {
+    resultMessage.textContent = "Barely passed";
+  } else if (percentage >= 40) {
+    resultMessage.textContent = "Try harder";
+  } else if (percentage >= 20) {
+    resultMessage.textContent = "That was rough";
+  } else {
+    resultMessage.textContent = "💀 pure guessing";
+  }
 }
-}
+
 function restartQuiz() {
-    resultScreen.classList.remove("active");
-
-    startQuiz();
+  resultScreen.classList.remove("active");
+  startScreen.classList.add("active");
 }
